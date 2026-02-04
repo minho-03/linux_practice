@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4 - 파일 권한</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .day-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .content-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content-card h3 {
+            color: #555;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .content-card p {
+            line-height: 1.8;
+            color: #555;
+            margin: 15px 0;
+            font-size: 1.05em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .command-box {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #00ff88;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Consolas', monospace;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-box::before {
+            content: '$ Terminal';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .command-box pre {
+            margin-top: 30px;
+            line-height: 1.8;
+        }
+
+        .note {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(255,193,7,0.2);
+        }
+
+        .note strong {
+            color: #f57c00;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .note p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .permission-visual {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+            border: 2px solid #667eea;
+        }
+
+        .permission-visual pre {
+            font-family: 'Consolas', monospace;
+            font-size: 1.5em;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        .permission-breakdown {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .perm-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .perm-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .perm-box p {
+            font-family: 'Consolas', monospace;
+            font-size: 1.3em;
+            color: #333;
+            margin: 0;
+        }
+
+        .reflection {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #667eea;
+        }
+
+        .reflection h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .reflection p {
+            color: #555;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            animation: fadeIn 0.8s ease 0.4s both;
+        }
+
+        .back-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            opacity: 0.9;
+            animation: fadeIn 0.8s ease 0.6s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .content-card {
+                padding: 25px;
+            }
+
+            .permission-breakdown {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="day-badge">📅 DAY 04</div>
+            <h1>파일 권한</h1>
+            <p class="subtitle">리눅스 보안의 기초, 파일 권한 시스템</p>
+        </header>
+
+        <div class="content-card">
+            <h2>🔐 파일 권한이란?</h2>
+            <p>리눅스는 멀티 유저 시스템입니다. 각 파일과 디렉토리는 누가 읽고, 쓰고, 실행할 수 있는지를 나타내는 권한을 가지고 있습니다.</p>
+
+            <div class="permission-visual">
+                <h3>권한 표기 방식</h3>
+                <pre>-rwxr-xr--</pre>
+                <div class="permission-breakdown">
+                    <div class="perm-box">
+                        <h4>파일 타입</h4>
+                        <p>-</p>
+                    </div>
+                    <div class="perm-box">
+                        <h4>소유자 권한</h4>
+                        <p>rwx</p>
+                    </div>
+                    <div class="perm-box">
+                        <h4>그룹 권한</h4>
+                        <p>r-x</p>
+                    </div>
+                    <div class="perm-box">
+                        <h4>기타 권한</h4>
+                        <p>r--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>📋 권한의 의미</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>기호</th>
+                        <th>권한</th>
+                        <th>파일</th>
+                        <th>디렉토리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>r</code></td>
+                        <td>읽기 (Read)</td>
+                        <td>파일 내용 읽기</td>
+                        <td>디렉토리 목록 보기</td>
+                    </tr>
+                    <tr>
+                        <td><code>w</code></td>
+                        <td>쓰기 (Write)</td>
+                        <td>파일 내용 수정</td>
+                        <td>파일 생성/삭제</td>
+                    </tr>
+                    <tr>
+                        <td><code>x</code></td>
+                        <td>실행 (Execute)</td>
+                        <td>프로그램 실행</td>
+                        <td>디렉토리 접근</td>
+                    </tr>
+                    <tr>
+                        <td><code>-</code></td>
+                        <td>권한 없음</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>숫자로 표현하기 (8진수)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>숫자</th>
+                        <th>권한</th>
+                        <th>기호</th>
+                        <th>계산</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>7</code></td>
+                        <td>읽기 + 쓰기 + 실행</td>
+                        <td>rwx</td>
+                        <td>4 + 2 + 1</td>
+                    </tr>
+                    <tr>
+                        <td><code>6</code></td>
+                        <td>읽기 + 쓰기</td>
+                        <td>rw-</td>
+                        <td>4 + 2</td>
+                    </tr>
+                    <tr>
+                        <td><code>5</code></td>
+                        <td>읽기 + 실행</td>
+                        <td>r-x</td>
+                        <td>4 + 1</td>
+                    </tr>
+                    <tr>
+                        <td><code>4</code></td>
+                        <td>읽기</td>
+                        <td>r--</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td><code>0</code></td>
+                        <td>권한 없음</td>
+                        <td>---</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h2>⚙️ 권한 관리 명령어</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                        <th>예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>chmod</code></td>
+                        <td>권한 변경</td>
+                        <td>chmod 755 file.txt</td>
+                    </tr>
+                    <tr>
+                        <td><code>chown</code></td>
+                        <td>소유자 변경</td>
+                        <td>chown user:group file.txt</td>
+                    </tr>
+                    <tr>
+                        <td><code>chgrp</code></td>
+                        <td>그룹 변경</td>
+                        <td>chgrp group file.txt</td>
+                    </tr>
+                    <tr>
+                        <td><code>umask</code></td>
+                        <td>기본 권한 설정</td>
+                        <td>umask 022</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h2>💻 실습한 내용</h2>
+            <div class="command-box">
+                <pre>$ ls -l test.txt
+-rw-r--r-- 1 user group 100 Feb 4 14:30 test.txt
+
+# 숫자로 권한 변경 (소유자: rwx, 그룹: r-x, 기타: r--)
+$ chmod 754 test.txt
+$ ls -l test.txt
+-rwxr-xr-- 1 user group 100 Feb 4 14:30 test.txt
+
+# 기호로 권한 변경
+$ chmod u+x script.sh    # 소유자에게 실행 권한 추가
+$ chmod g-w file.txt     # 그룹의 쓰기 권한 제거
+$ chmod o+r data.txt     # 기타 사용자에게 읽기 권한 추가
+$ chmod a+x program      # 모두에게 실행 권한 추가
+
+# 소유자 변경 (root 권한 필요)
+$ sudo chown newuser:newgroup file.txt
+
+# 재귀적으로 디렉토리 권한 변경
+$ chmod -R 755 mydir/</pre>
+            </div>
+
+            <div class="note">
+                <strong>💡 자주 사용하는 권한 조합</strong>
+                <p><code>755</code>: 일반적인 실행 파일 권한 (rwxr-xr-x)</p>
+                <p><code>644</code>: 일반적인 문서 파일 권한 (rw-r--r--)</p>
+                <p><code>777</code>: 모든 권한 부여 (보안상 권장하지 않음!)</p>
+                <p><code>600</code>: 소유자만 읽고 쓰기 가능 (개인 파일)</p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>🔍 chmod 기호 사용법</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>대상</th>
+                        <th>연산자</th>
+                        <th>권한</th>
+                        <th>예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>u (user/소유자)</td>
+                        <td>+ (추가)</td>
+                        <td>r (읽기)</td>
+                        <td><code>chmod u+r file</code></td>
+                    </tr>
+                    <tr>
+                        <td>g (group/그룹)</td>
+                        <td>- (제거)</td>
+                        <td>w (쓰기)</td>
+                        <td><code>chmod g-w file</code></td>
+                    </tr>
+                    <tr>
+                        <td>o (others/기타)</td>
+                        <td>= (설정)</td>
+                        <td>x (실행)</td>
+                        <td><code>chmod o=rx file</code></td>
+                    </tr>
+                    <tr>
+                        <td>a (all/모두)</td>
+                        <td></td>
+                        <td></td>
+                        <td><code>chmod a+x file</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="reflection">
+                <h3>💭 오늘의 학습 소감</h3>
+                <p>파일 권한이 리눅스 보안의 핵심이라는 것을 알게 되었습니다. 
+                처음에는 rwx와 숫자 표기법이 헷갈렸지만, 실습을 통해 점차 이해가 되었어요.</p>
+                <p style="margin-top: 15px;">특히 755, 644 같은 일반적인 권한 설정의 의미를 알게 되니 
+                시스템 파일들의 권한이 왜 그렇게 설정되어 있는지 이해할 수 있었습니다. 
+                앞으로는 파일을 생성할 때 적절한 권한을 설정하는 습관을 들여야겠어요! 🔒</p>
+            </div>
+
+            <h3>📝 다음 학습 목표</h3>
+            <p>✅ 특수 권한 (SetUID, SetGID, Sticky Bit) 이해하기</p>
+            <p>✅ ACL (Access Control List) 배우기</p>
+            <p>✅ 보안 모범 사례 알아보기</p>
+        </div>
+
+        <a href="index.html" class="back-link">
+            <span>←</span>
+            <span>메인으로 돌아가기</span>
+        </a>
+
+        <footer>
+            <p>파일 권한의 달인이 되어가는 중... 🛡️</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Day 4 완료! 🎉</p>
+        </footer>
+    </div>
+</body>
+</html>

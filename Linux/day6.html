@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 6 - 디스크 관리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .day-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .content-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content-card h3 {
+            color: #555;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .content-card p {
+            line-height: 1.8;
+            color: #555;
+            margin: 15px 0;
+            font-size: 1.05em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .command-box {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #00ff88;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Consolas', monospace;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-box::before {
+            content: '$ Terminal';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .command-box pre {
+            margin-top: 30px;
+            line-height: 1.8;
+        }
+
+        .note {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(255,193,7,0.2);
+        }
+
+        .note strong {
+            color: #f57c00;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .note p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+            border-left: 5px solid #ff4444;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(255,68,68,0.2);
+        }
+
+        .warning strong {
+            color: #cc0000;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .warning p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 0.95em;
+            margin: 0;
+        }
+
+        .reflection {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #667eea;
+        }
+
+        .reflection h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .reflection p {
+            color: #555;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            animation: fadeIn 0.8s ease 0.4s both;
+        }
+
+        .back-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            opacity: 0.9;
+            animation: fadeIn 0.8s ease 0.6s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .content-card {
+                padding: 25px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="day-badge">📅 DAY 06</div>
+            <h1>디스크 관리</h1>
+            <p class="subtitle">저장 공간을 효율적으로 관리하기</p>
+        </header>
+
+        <div class="content-card">
+            <h2>💾 디스크 관리란?</h2>
+            <p>리눅스에서 디스크 관리는 저장 장치의 파티션, 마운트, 용량 관리 등을 포함합니다. 
+            효율적인 디스크 관리는 시스템 성능과 안정성에 중요한 역할을 합니다.</p>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>🔹 파티션</h4>
+                    <p>디스크를 논리적으로 나누는 단위</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔹 마운트</h4>
+                    <p>파일시스템을 디렉토리에 연결</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔹 파일시스템</h4>
+                    <p>데이터 저장 구조 (ext4, xfs 등)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>📊 디스크 정보 확인</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                        <th>예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>df</code></td>
+                        <td>디스크 사용량 확인</td>
+                        <td>df -h</td>
+                    </tr>
+                    <tr>
+                        <td><code>du</code></td>
+                        <td>디렉토리/파일 크기 확인</td>
+                        <td>du -sh /home</td>
+                    </tr>
+                    <tr>
+                        <td><code>lsblk</code></td>
+                        <td>블록 장치 목록 보기</td>
+                        <td>lsblk</td>
+                    </tr>
+                    <tr>
+                        <td><code>fdisk</code></td>
+                        <td>파티션 관리 (MBR)</td>
+                        <td>fdisk -l</td>
+                    </tr>
+                    <tr>
+                        <td><code>parted</code></td>
+                        <td>파티션 관리 (GPT)</td>
+                        <td>parted -l</td>
+                    </tr>
+                    <tr>
+                        <td><code>mount</code></td>
+                        <td>파일시스템 마운트</td>
+                        <td>mount /dev/sdb1 /mnt</td>
+                    </tr>
+                    <tr>
+                        <td><code>umount</code></td>
+                        <td>파일시스템 언마운트</td>
+                        <td>umount /mnt</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h2>💻 실습한 내용</h2>
+            <div class="command-box">
+                <pre>$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   30G   18G  63% /
+/dev/sda2       100G   45G   50G  48% /home
+tmpfs           3.9G     0  3.9G   0% /dev/shm
+
+$ du -sh /home/*
+2.5G    /home/user
+1.8G    /home/data
+500M    /home/backup
+
+$ lsblk
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda      8:0    0   200G  0 disk 
+├─sda1   8:1    0    50G  0 part /
+├─sda2   8:2    0   100G  0 part /home
+└─sda3   8:3    0    50G  0 part [SWAP]
+sr0     11:0    1  1024M  0 rom  
+
+$ sudo fdisk -l /dev/sda
+Disk /dev/sda: 200 GiB
+Units: sectors of 1 * 512 = 512 bytes
+Sector size: 512 bytes / 512 bytes
+
+Device     Boot     Start       End   Sectors  Size Id Type
+/dev/sda1  *         2048 104859647 104857600   50G 83 Linux
+/dev/sda2       104859648 314574847 209715200  100G 83 Linux
+/dev/sda3       314574848 419430399 104855552   50G 82 Linux swap</pre>
+            </div>
+
+            <div class="note">
+                <strong>💡 유용한 옵션</strong>
+                <p><code>df -h</code>: 사람이 읽기 쉬운 형식 (GB, MB 단위)</p>
+                <p><code>du -sh *</code>: 현재 디렉토리의 각 항목 크기 요약</p>
+                <p><code>du -ah | sort -hr | head -20</code>: 용량이 큰 파일 20개 찾기</p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>🔧 마운트 작업</h3>
+            <div class="command-box">
+                <pre># USB 드라이브 마운트
+$ sudo mkdir /mnt/usb
+$ sudo mount /dev/sdb1 /mnt/usb
+$ ls /mnt/usb
+
+# 언마운트
+$ sudo umount /mnt/usb
+
+# 자동 마운트 설정 (/etc/fstab 편집)
+$ sudo vim /etc/fstab
+# 다음 줄 추가:
+/dev/sdb1  /mnt/usb  ext4  defaults  0  2
+
+# fstab 변경사항 적용
+$ sudo mount -a
+
+# 현재 마운트된 파일시스템 확인
+$ mount | grep "^/dev"</pre>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ 주의사항</strong>
+                <p>마운트된 파일시스템을 언마운트하기 전에 사용 중인 프로세스가 없는지 확인하세요.</p>
+                <p><code>/etc/fstab</code> 파일을 잘못 수정하면 부팅이 안 될 수 있습니다!</p>
+                <p>파티션 작업은 데이터 손실 위험이 있으니 백업 후 진행하세요.</p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>📁 파일시스템 종류</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>파일시스템</th>
+                        <th>설명</th>
+                        <th>특징</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ext4</code></td>
+                        <td>Linux 표준 파일시스템</td>
+                        <td>안정성, 널리 사용됨</td>
+                    </tr>
+                    <tr>
+                        <td><code>xfs</code></td>
+                        <td>고성능 파일시스템</td>
+                        <td>대용량 파일에 유리</td>
+                    </tr>
+                    <tr>
+                        <td><code>btrfs</code></td>
+                        <td>최신 파일시스템</td>
+                        <td>스냅샷, 압축 지원</td>
+                    </tr>
+                    <tr>
+                        <td><code>ntfs</code></td>
+                        <td>Windows 파일시스템</td>
+                        <td>Windows와 호환성</td>
+                    </tr>
+                    <tr>
+                        <td><code>vfat</code></td>
+                        <td>FAT32</td>
+                        <td>USB, 범용 호환성</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>디스크 정리 명령어</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>apt clean</code></td>
+                        <td>다운로드한 패키지 캐시 삭제 (Debian/Ubuntu)</td>
+                    </tr>
+                    <tr>
+                        <td><code>apt autoremove</code></td>
+                        <td>불필요한 패키지 제거</td>
+                    </tr>
+                    <tr>
+                        <td><code>find / -type f -size +100M</code></td>
+                        <td>100MB 이상 파일 찾기</td>
+                    </tr>
+                    <tr>
+                        <td><code>ncdu</code></td>
+                        <td>디스크 사용량 분석 도구 (설치 필요)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h3>🔍 디스크 문제 해결</h3>
+            <div class="command-box">
+                <pre># 디스크 체크
+$ sudo fsck /dev/sda1
+
+# SMART 정보 확인 (디스크 건강 상태)
+$ sudo smartctl -a /dev/sda
+
+# 디스크 I/O 성능 테스트
+$ sudo hdparm -Tt /dev/sda
+
+# 읽기 속도 테스트
+Timing cached reads:   12000 MB in 2.00 seconds = 6000 MB/sec
+Timing buffered disk reads: 600 MB in 3.00 seconds = 200 MB/sec</pre>
+            </div>
+
+            <div class="reflection">
+                <h3>💭 오늘의 학습 소감</h3>
+                <p>디스크 관리가 생각보다 복잡하지만 중요하다는 것을 배웠습니다. 
+                특히 <code>df</code>와 <code>du</code> 명령어로 디스크 사용량을 모니터링하는 것이 유용했어요.</p>
+                <p style="margin-top: 15px;">마운트 개념을 처음 배울 때는 어려웠지만, 
+                실습을 통해 USB를 직접 마운트하니 이해가 되었습니다. 
+                /etc/fstab 파일은 조심스럽게 다뤄야 한다는 점도 알게 되었고요. 
+                앞으로 디스크 용량 관리를 더 효율적으로 할 수 있을 것 같습니다! 💾</p>
+            </div>
+
+            <h3>📝 다음 학습 목표</h3>
+            <p>✅ LVM (Logical Volume Management) 배우기</p>
+            <p>✅ RAID 구성 이해하기</p>
+            <p>✅ 디스크 백업 및 복구 전략 수립</p>
+        </div>
+
+        <a href="index.html" class="back-link">
+            <span>←</span>
+            <span>메인으로 돌아가기</span>
+        </a>
+
+        <footer>
+            <p>디스크 관리 전문가가 되어가는 중... 💿</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Day 6 완료! 🎉</p>
+        </footer>
+    </div>
+</body>
+</html>

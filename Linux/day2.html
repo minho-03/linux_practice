@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2 - Vim 에디터</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .day-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .content-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content-card h3 {
+            color: #555;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .content-card p {
+            line-height: 1.8;
+            color: #555;
+            margin: 15px 0;
+            font-size: 1.05em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .command-box {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #00ff88;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Consolas', monospace;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-box::before {
+            content: '$ Terminal';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .command-box pre {
+            margin-top: 30px;
+            line-height: 1.8;
+        }
+
+        .note {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(255,193,7,0.2);
+        }
+
+        .note strong {
+            color: #f57c00;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .note p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .mode-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .mode-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .mode-card p {
+            color: #666;
+            font-size: 0.95em;
+            margin: 0;
+        }
+
+        .reflection {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #667eea;
+        }
+
+        .reflection h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .reflection p {
+            color: #555;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            animation: fadeIn 0.8s ease 0.4s both;
+        }
+
+        .back-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            opacity: 0.9;
+            animation: fadeIn 0.8s ease 0.6s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .content-card {
+                padding: 25px;
+            }
+
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="day-badge">📅 DAY 02</div>
+            <h1>Vim 에디터</h1>
+            <p class="subtitle">강력한 텍스트 에디터의 세계로</p>
+        </header>
+
+        <div class="content-card">
+            <h2>📝 Vim이란?</h2>
+            <p>Vim은 Unix 시스템에서 가장 널리 사용되는 텍스트 에디터 중 하나입니다. 
+            처음에는 어렵지만, 익숙해지면 마우스 없이도 매우 빠르게 텍스트를 편집할 수 있습니다.</p>
+
+            <div class="mode-grid">
+                <div class="mode-card">
+                    <h4>📖 Normal Mode</h4>
+                    <p>기본 모드. 커서 이동과 명령어 실행</p>
+                </div>
+                <div class="mode-card">
+                    <h4>✏️ Insert Mode</h4>
+                    <p>텍스트 입력 모드. <code>i</code>로 진입</p>
+                </div>
+                <div class="mode-card">
+                    <h4>💾 Command Mode</h4>
+                    <p>파일 저장, 종료 등. <code>:</code>로 진입</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>⌨️ 기본 명령어</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                        <th>모드</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>i</code></td>
+                        <td>Insert 모드로 전환 (현재 위치)</td>
+                        <td>Normal</td>
+                    </tr>
+                    <tr>
+                        <td><code>a</code></td>
+                        <td>Insert 모드로 전환 (커서 다음)</td>
+                        <td>Normal</td>
+                    </tr>
+                    <tr>
+                        <td><code>ESC</code></td>
+                        <td>Normal 모드로 돌아가기</td>
+                        <td>Insert</td>
+                    </tr>
+                    <tr>
+                        <td><code>:w</code></td>
+                        <td>파일 저장</td>
+                        <td>Command</td>
+                    </tr>
+                    <tr>
+                        <td><code>:q</code></td>
+                        <td>Vim 종료</td>
+                        <td>Command</td>
+                    </tr>
+                    <tr>
+                        <td><code>:wq</code></td>
+                        <td>저장하고 종료</td>
+                        <td>Command</td>
+                    </tr>
+                    <tr>
+                        <td><code>:q!</code></td>
+                        <td>저장하지 않고 강제 종료</td>
+                        <td>Command</td>
+                    </tr>
+                    <tr>
+                        <td><code>dd</code></td>
+                        <td>현재 줄 삭제</td>
+                        <td>Normal</td>
+                    </tr>
+                    <tr>
+                        <td><code>yy</code></td>
+                        <td>현재 줄 복사</td>
+                        <td>Normal</td>
+                    </tr>
+                    <tr>
+                        <td><code>p</code></td>
+                        <td>붙여넣기</td>
+                        <td>Normal</td>
+                    </tr>
+                    <tr>
+                        <td><code>u</code></td>
+                        <td>실행 취소 (Undo)</td>
+                        <td>Normal</td>
+                    </tr>
+                    <tr>
+                        <td><code>Ctrl+r</code></td>
+                        <td>다시 실행 (Redo)</td>
+                        <td>Normal</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h2>💻 실습한 내용</h2>
+            <p>Vim으로 파일을 생성하고 편집해보았습니다:</p>
+            <div class="command-box">
+                <pre>$ vim test.txt
+
+# Vim 화면이 열림
+# i 키를 눌러 Insert 모드로 전환
+
+Hello, Vim!
+This is my first vim file.
+Learning vim is challenging but fun!
+
+# ESC 키를 눌러 Normal 모드로
+# :wq 입력하여 저장하고 종료
+
+$ cat test.txt
+Hello, Vim!
+This is my first vim file.
+Learning vim is challenging but fun!</pre>
+            </div>
+
+            <div class="note">
+                <strong>💡 초보자를 위한 팁</strong>
+                <p>처음 Vim을 실행하면 아무것도 입력되지 않아 당황할 수 있습니다. <code>i</code>를 눌러야 텍스트를 입력할 수 있어요!</p>
+                <p>종료가 어렵다면: <code>ESC</code> → <code>:q!</code> (강제 종료)</p>
+                <p><code>vimtutor</code> 명령어로 대화형 튜토리얼을 실행할 수 있습니다.</p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>🎯 커서 이동 명령어</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>h, j, k, l</code></td>
+                        <td>← ↓ ↑ → 방향으로 커서 이동</td>
+                    </tr>
+                    <tr>
+                        <td><code>w</code></td>
+                        <td>다음 단어로 이동</td>
+                    </tr>
+                    <tr>
+                        <td><code>b</code></td>
+                        <td>이전 단어로 이동</td>
+                    </tr>
+                    <tr>
+                        <td><code>0</code></td>
+                        <td>줄의 맨 앞으로</td>
+                    </tr>
+                    <tr>
+                        <td><code>$</code></td>
+                        <td>줄의 맨 뒤로</td>
+                    </tr>
+                    <tr>
+                        <td><code>gg</code></td>
+                        <td>파일의 맨 처음으로</td>
+                    </tr>
+                    <tr>
+                        <td><code>G</code></td>
+                        <td>파일의 맨 마지막으로</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="reflection">
+                <h3>💭 오늘의 학습 소감</h3>
+                <p>Vim은 정말 독특한 에디터네요! 처음에는 종료하는 것조차 어려웠지만, 
+                모드의 개념을 이해하고 나니 왜 많은 개발자들이 Vim을 사용하는지 조금 이해가 되었습니다.</p>
+                <p style="margin-top: 15px;">마우스 없이 키보드만으로 모든 작업을 할 수 있다는 것이 매력적이에요. 
+                아직은 서툴지만, 자주 사용하다 보면 손에 익을 것 같습니다. 
+                특히 <code>dd</code>, <code>yy</code>, <code>p</code> 조합이 정말 강력하네요! ✨</p>
+            </div>
+
+            <h3>📝 다음 학습 목표</h3>
+            <p>✅ 검색과 치환 명령어 배우기 (<code>/</code>, <code>:%s</code>)</p>
+            <p>✅ 비주얼 모드 활용하기</p>
+            <p>✅ .vimrc 설정 파일 이해하기</p>
+        </div>
+
+        <a href="index.html" class="back-link">
+            <span>←</span>
+            <span>메인으로 돌아가기</span>
+        </a>
+
+        <footer>
+            <p>Vim 마스터의 길은 멀고도 험하다... 하지만 포기하지 않을 거야! 💪</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Day 2 완료! 🎉</p>
+        </footer>
+    </div>
+</body>
+</html>

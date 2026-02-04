@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5 - 프로세스 관리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .day-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .content-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content-card h3 {
+            color: #555;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .content-card p {
+            line-height: 1.8;
+            color: #555;
+            margin: 15px 0;
+            font-size: 1.05em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        code {
+            background-color: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .command-box {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            color: #00ff88;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Consolas', monospace;
+            margin: 20px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-box::before {
+            content: '$ Terminal';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .command-box pre {
+            margin-top: 30px;
+            line-height: 1.8;
+        }
+
+        .note {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(255,193,7,0.2);
+        }
+
+        .note strong {
+            color: #f57c00;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .note p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+            border-left: 5px solid #ff4444;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(255,68,68,0.2);
+        }
+
+        .warning strong {
+            color: #cc0000;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .warning p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 0.95em;
+            margin: 0;
+        }
+
+        .reflection {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #667eea;
+        }
+
+        .reflection h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .reflection p {
+            color: #555;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 30px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            animation: fadeIn 0.8s ease 0.4s both;
+        }
+
+        .back-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            opacity: 0.9;
+            animation: fadeIn 0.8s ease 0.6s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .content-card {
+                padding: 25px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="day-badge">📅 DAY 05</div>
+            <h1>프로세스 관리</h1>
+            <p class="subtitle">실행 중인 프로그램들을 제어하자</p>
+        </header>
+
+        <div class="content-card">
+            <h2>⚙️ 프로세스란?</h2>
+            <p>프로세스는 실행 중인 프로그램의 인스턴스입니다. 
+            각 프로세스는 고유한 PID(Process ID)를 가지며, CPU와 메모리 등의 시스템 자원을 사용합니다.</p>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>🔹 PID</h4>
+                    <p>프로세스를 식별하는 고유 번호</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔹 PPID</h4>
+                    <p>부모 프로세스의 ID</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔹 상태</h4>
+                    <p>실행, 대기, 중지, 좀비 등</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h2>📊 프로세스 조회 명령어</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                        <th>예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ps</code></td>
+                        <td>현재 실행 중인 프로세스 보기</td>
+                        <td>ps aux</td>
+                    </tr>
+                    <tr>
+                        <td><code>top</code></td>
+                        <td>실시간 프로세스 모니터링</td>
+                        <td>top</td>
+                    </tr>
+                    <tr>
+                        <td><code>htop</code></td>
+                        <td>개선된 top (설치 필요)</td>
+                        <td>htop</td>
+                    </tr>
+                    <tr>
+                        <td><code>pgrep</code></td>
+                        <td>이름으로 프로세스 찾기</td>
+                        <td>pgrep firefox</td>
+                    </tr>
+                    <tr>
+                        <td><code>pstree</code></td>
+                        <td>프로세스 트리 보기</td>
+                        <td>pstree</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>ps 명령어 옵션</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>옵션</th>
+                        <th>설명</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>ps aux</code></td>
+                        <td>모든 프로세스를 자세히 보기</td>
+                    </tr>
+                    <tr>
+                        <td><code>ps -ef</code></td>
+                        <td>전체 형식으로 모든 프로세스</td>
+                    </tr>
+                    <tr>
+                        <td><code>ps -u 사용자</code></td>
+                        <td>특정 사용자의 프로세스</td>
+                    </tr>
+                    <tr>
+                        <td><code>ps -C 프로그램</code></td>
+                        <td>특정 프로그램의 프로세스</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h2>🎮 프로세스 제어 명령어</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>명령어</th>
+                        <th>설명</th>
+                        <th>예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>kill</code></td>
+                        <td>프로세스 종료 신호 보내기</td>
+                        <td>kill 1234</td>
+                    </tr>
+                    <tr>
+                        <td><code>kill -9</code></td>
+                        <td>강제 종료 (SIGKILL)</td>
+                        <td>kill -9 1234</td>
+                    </tr>
+                    <tr>
+                        <td><code>killall</code></td>
+                        <td>이름으로 프로세스 종료</td>
+                        <td>killall firefox</td>
+                    </tr>
+                    <tr>
+                        <td><code>pkill</code></td>
+                        <td>패턴으로 프로세스 종료</td>
+                        <td>pkill -u user</td>
+                    </tr>
+                    <tr>
+                        <td><code>nice</code></td>
+                        <td>우선순위 지정하여 실행</td>
+                        <td>nice -n 10 command</td>
+                    </tr>
+                    <tr>
+                        <td><code>renice</code></td>
+                        <td>실행 중 우선순위 변경</td>
+                        <td>renice -n 5 -p 1234</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h2>💻 실습한 내용</h2>
+            <div class="command-box">
+                <pre>$ ps aux
+USER  PID  %CPU %MEM    VSZ   RSS TTY   STAT START TIME COMMAND
+user  1234  2.5  1.3 123456 12345 ?     S    10:00 0:05 firefox
+user  5678  0.1  0.5  45678  4567 pts/0 R+   10:30 0:00 ps aux
+
+$ top
+# 실시간 프로세스 모니터링 화면
+# q를 눌러 종료
+
+$ pgrep firefox
+1234
+
+$ kill 1234
+# 프로세스 정상 종료 시도
+
+$ kill -9 1234
+# 응답하지 않을 경우 강제 종료
+
+# 백그라운드 실행
+$ sleep 100 &
+[1] 9999
+
+$ jobs
+[1]+  Running  sleep 100 &
+
+# 포어그라운드로 가져오기
+$ fg %1
+
+# Ctrl+Z로 일시 중지 후 백그라운드로
+$ bg %1</pre>
+            </div>
+
+            <div class="note">
+                <strong>💡 유용한 팁</strong>
+                <p><code>&</code>를 명령어 끝에 붙이면 백그라운드에서 실행됩니다.</p>
+                <p><code>Ctrl+C</code>는 현재 프로세스 종료, <code>Ctrl+Z</code>는 일시 중지입니다.</p>
+                <p><code>top</code>에서 <code>k</code>를 누르면 프로세스를 종료할 수 있습니다.</p>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ 주의사항</strong>
+                <p><code>kill -9</code>는 최후의 수단입니다. 먼저 일반 <code>kill</code>을 시도하세요.</p>
+                <p>시스템 프로세스를 함부로 종료하면 시스템이 불안정해질 수 있습니다.</p>
+                <p>PID 1 (init/systemd)은 절대 종료하면 안 됩니다!</p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>🔢 주요 시그널</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>시그널</th>
+                        <th>번호</th>
+                        <th>설명</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>SIGTERM</code></td>
+                        <td>15</td>
+                        <td>정상 종료 (기본값)</td>
+                    </tr>
+                    <tr>
+                        <td><code>SIGKILL</code></td>
+                        <td>9</td>
+                        <td>강제 종료 (무시 불가)</td>
+                    </tr>
+                    <tr>
+                        <td><code>SIGHUP</code></td>
+                        <td>1</td>
+                        <td>재시작/설정 다시 읽기</td>
+                    </tr>
+                    <tr>
+                        <td><code>SIGINT</code></td>
+                        <td>2</td>
+                        <td>인터럽트 (Ctrl+C)</td>
+                    </tr>
+                    <tr>
+                        <td><code>SIGSTOP</code></td>
+                        <td>19</td>
+                        <td>일시 중지 (무시 불가)</td>
+                    </tr>
+                    <tr>
+                        <td><code>SIGCONT</code></td>
+                        <td>18</td>
+                        <td>계속 실행</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="reflection">
+                <h3>💭 오늘의 학습 소감</h3>
+                <p>프로세스 관리가 시스템 관리의 핵심이라는 것을 배웠습니다. 
+                <code>top</code> 명령어로 실시간으로 CPU와 메모리 사용량을 보는 게 정말 유용했어요!</p>
+                <p style="margin-top: 15px;">특히 백그라운드/포어그라운드 작업 전환이 흥미로웠습니다. 
+                시간이 오래 걸리는 작업을 백그라운드로 돌려놓고 다른 작업을 할 수 있다는 게 편리하네요. 
+                kill 명령어를 사용할 때는 조심해야겠다는 것도 배웠습니다. 
+                특히 -9 옵션은 정말 최후의 수단이라는 점! 💪</p>
+            </div>
+
+            <h3>📝 다음 학습 목표</h3>
+            <p>✅ 데몬(Daemon) 프로세스 이해하기</p>
+            <p>✅ systemd로 서비스 관리하기</p>
+            <p>✅ 프로세스 우선순위 최적화하기</p>
+        </div>
+
+        <a href="index.html" class="back-link">
+            <span>←</span>
+            <span>메인으로 돌아가기</span>
+        </a>
+
+        <footer>
+            <p>프로세스 관리자가 되어가는 중... ⚡</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Day 5 완료! 🎉</p>
+        </footer>
+    </div>
+</body>
+</html>
